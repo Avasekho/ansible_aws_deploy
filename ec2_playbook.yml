@@ -3,7 +3,7 @@
 - name: Create default security group
   vars:
     region: us-east-1
-  ec2_group:
+  module: ec2_group
     name: default ansible group 
     description: Security Group for EC2 Server
     region: "{{ region }}"
