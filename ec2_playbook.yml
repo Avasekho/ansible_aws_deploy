@@ -1,5 +1,4 @@
 ---
-# Security group
 - name: Create default security group
   hosts: localhost
   
@@ -46,7 +45,7 @@
 
   tasks:
   - name: launch instance
-    amazon.aws.ec2_instance:
+    amazon.aws.ec2:
       profile: avasekho
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
