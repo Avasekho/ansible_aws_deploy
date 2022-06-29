@@ -42,7 +42,6 @@
     region: us-east-1
     
   tasks:
-    - name: Launch instance
       amazon.aws.ec2_instance:
         key_name: "{{ keypair }}"
         group: "{{ security_group }}"
@@ -58,7 +57,7 @@
             volume_size: 8
             delete_on_termination: true
       register: ec2_build
-    - name: Add new instance to host group
+
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: build
@@ -74,7 +73,6 @@
     region: us-east-1
 
   tasks:
-    - name: Launch instance
       amazon.aws.ec2_instance:
         key_name: "{{ keypair }}"
         group: "{{ security_group }}"
@@ -90,7 +88,7 @@
             volume_size: 8
             delete_on_termination: true
       register: ec2_prod
-    - name: Add new instance to host group
+
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: prod
