@@ -1,11 +1,11 @@
 ---
 # Security group
-- name: Create default security group
+#- name: Create default security group
   hosts: localhost
   vars:
     region: us-east-1
   tasks:
-    - name: create group
+#    - name: create group
       ec2_group:
         name: default-ansible-group 
         description: Security Group for EC2 Server
