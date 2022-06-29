@@ -1,47 +1,50 @@
 ---
 # Security group
-#- name: Create default security group
+- name: Create default security group
   hosts: localhost
+  
   vars:
     region: us-east-1
+  
   tasks:
-#    - name: create group
-      ec2_group:
-        name: default-ansible-group 
-        description: Security Group for EC2 Server
-        region: "{{ region }}"
-        rules:
-          - proto: tcp
-            from_port: 22
-            to_port: 22
-            cidr_ip: 0.0.0.0/0
-          - proto: tcp
-            from_port: 80
-            to_port: 80
-            cidr_ip: 0.0.0.0/0
-          - proto: tcp
-            from_port: 443
-            to_port: 443
-            cidr_ip: 0.0.0.0/0
-          - proto: tcp
-            from_port: 8080
-            to_port: 8080
-            cidr_ip: 0.0.0.0/0
-        rules_egress:
-          - proto: all
-            cidr_ip: 0.0.0.0/0
-
+  - name: create group
+    ec2_group:
+      name: default-ansible-group 
+      description: Security Group for EC2 Server
+      region: "{{ region }}"
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 443
+          to_port: 443
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 8080
+          to_port: 8080
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
 # Building instances
-#- name: create new build instance
+- name: create new build instance
   hosts: localhost
+
   vars:
     keypair: ansible_aws_key
     security_group: default ansible group
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
     region: us-east-1
+
   tasks:
-#  - name: launch instance
+  - name: launch instance
     amazon.aws.ec2:
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
@@ -58,102 +61,8 @@
           delete_on_termination: true
     register: ec2_build
 
-#  - name: add instance to host group
+  - name: add instance to host group
     add_host:
       hostname: "{{ item.public_ip }}"
       groupname: build
     loop: "{{ ec2_build.instances }}"
-
-#- name: Create a prod instance
-  hosts: localhost
-  vars:
-    keypair: ansible_aws_key
-    security_group: default ansible group
-    image: ami-08d4ac5b634553e16
-    instance_type: t2.micro
-    region: us-east-1
-
-  tasks:
-#    - name: Launch instance
-      amazon.aws.ec2:
-        key_name: "{{ keypair }}"
-        group: "{{ security_group }}"
-        instance_type: "{{ instance_type }}"
-        image: "{{ image }}"
-        wait: true
-        region: "{{ region }}"
-        network:
-          assign_public_ip: true
-        volumes:
-        - device_name: /dev/sda1
-          ebs:
-            volume_size: 8
-            delete_on_termination: true
-      register: ec2_prod
-
-#    - name: Add new instance to host group
-      add_host:
-        hostname: "{{ item.public_ip }}"
-        groupname: prod
-      loop: "{{ ec2_prod.instances }}"
-
-# build server setup
-#- name: install maven
-  hosts: build
-  become: yes
-
-  tasks:
-#  - name: Ensure default-jdk package is installed
-    apt:
-      pkg:
-      - default-jdk
-      - maven
-      - git
-      state: present
-
-# building war
-#- name: build war
-  hosts: build
-  become: yes
-
-  tasks:
-#  - name: clone files from Git repository
-    git:
-      repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
-      dest: /tmp/boxfuse
-
-#  - name: package war
-    shell:
-      chdir: /tmp/boxfuse
-      cmd: mvn package
-
-# prod server setup
-#- name: install tomcat
-  hosts: prod
-  become: yes
-
-  tasks:
-#  - name: Ensure tomcat9 package is installed
-    apt:
-      name: tomcat9
-      state: present
-
-#  - name: Ensure tomcat9 service is started
-    service:
-      name: tomcat9
-      state: started
-
-# push artifact
-#- name: install tomcat
-  hosts: prod
-  become: yes
-
-  tasks:
-#  - name: sync war
-    synchronize:
-      mode: push
-      src: /tmp/boxfuse/target/hello-1.0.war
-      dest: /var/lib/tomcat9/webapps/
-    delegate_to: "{{ item.public_ip }}"
-    delegate_facts: True
-    loop: "{{groups['build']}}"
