@@ -67,3 +67,33 @@
       hostname: "{{ item.public_ip }}"
       groupname: build
     loop: "{{ ec2_build.instances }}"
+
+# build server setup
+- name: install maven
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: Ensure default-jdk package is installed
+    apt:
+      pkg:
+      - default-jdk
+      - maven
+      - git
+      state: present
+
+# building war
+- name: build war
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: clone files from Git repository
+    git:
+      repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
+      dest: /tmp/boxfuse
+
+  - name: package war
+    shell:
+      chdir: /tmp/boxfuse
+      cmd: mvn package
