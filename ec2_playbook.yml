@@ -1,1 +1,144 @@
+---
+# Security group
+- name: Create default security group
+  hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    region: us-east-1
+  ec2_group:
+      name: default ansible group 
+      description: Security Group for EC2 Server
+      region: "{{ region }}"
+      rules:
+      - proto: tcp
+        ports:
+        - 22
+        - 80
+        - 443
+        - 8080
+        cidr_ip: 0.0.0.0/0
 
+# Building instances
+- name: Create a build instance
+  hosts: localhost
+  vars:
+    keypair: ansible_aws_key
+    security_group: default ansible group
+    image: ami-08d4ac5b634553e16
+    instance_type: t2.micro
+    region: us-east-1
+  tasks:
+    - name: Launch instance
+      amazon.aws.ec2:
+         key_name: "{{ keypair }}"
+         instance_tags:
+          Name: "Build_server"
+         group: "{{ security_group }}"
+         instance_type: "{{ instance_type }}"
+         image: "{{ image }}"
+         wait: true
+         region: "{{ region }}"
+         user_data: |
+               #!/bin/sh
+               sudo apt-get update && sudo apt-get install python3 -y
+         assign_public_ip: yes
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: build
+      loop: "{{ ec2.instances }}"
+
+- name: Create a prod instance
+  hosts: localhost
+  vars:
+    keypair: ansible_aws_key
+    security_group: default ansible group
+    image: ami-08d4ac5b634553e16
+    instance_type: t2.micro
+    region: us-east-1
+  tasks:
+    - name: Launch instance
+      amazon.aws.ec2:
+         key_name: "{{ keypair }}"
+         instance_tags:
+          Name: "Prod_server"
+         group: "{{ security_group }}"
+         instance_type: "{{ instance_type }}"
+         image: "{{ image }}"
+         wait: true
+         region: "{{ region }}"
+         user_data: |
+               #!/bin/sh
+               sudo apt-get update && sudo apt-get install python3 -y
+         assign_public_ip: yes
+      register: ec2
+
+    - name: Add new instance to host group
+      add_host:
+        hostname: "{{ item.public_ip }}"
+        groupname: prod
+      loop: "{{ ec2.instances }}"
+
+# build server setup
+- name: install maven
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: Ensure default-jdk package is installed
+    apt:
+      pkg:
+      - default-jdk
+      - maven
+      - git
+      state: present
+
+# building war
+- name: build war
+  hosts: build
+  become: yes
+
+  tasks:
+  - name: clone files from Git repository
+    git:
+      repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
+      dest: /tmp/boxfuse
+
+  - name: package war
+    shell:
+      chdir: /tmp/boxfuse
+      cmd: mvn package
+
+# prod server setup
+- name: install tomcat
+  hosts: prod
+  become: yes
+
+  tasks:
+  - name: Ensure tomcat9 package is installed
+    apt:
+      name: tomcat9
+      state: present
+
+  - name: Ensure tomcat9 service is started
+    service:
+      name: tomcat9
+      state: started
+
+# push artifact
+- name: install tomcat
+  hosts: prod
+  become: yes
+
+  tasks:
+  - name: sync war
+    synchronize:
+      mode: push
+      src: /tmp/boxfuse/target/hello-1.0.war
+      dest: /var/lib/tomcat9/webapps/
+    delegate_to: "{{item}}"
+    delegate_facts: True
+    loop: "{{groups['build']}}"
