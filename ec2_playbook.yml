@@ -65,6 +65,13 @@
       groupname: build
     loop: "{{ ec2_build.instances }}"
 
+  - name: Wait for SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 240
+    loop: "{{ ec2_build.instances }}"
+
 # ------
 - name: create new prod instance
   hosts: localhost
@@ -95,6 +102,13 @@
     add_host:
       hostname: "{{ item.public_ip }}"
       groupname: prod
+    loop: "{{ ec2_prod.instances }}"
+
+  - name: Wait for SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 240
     loop: "{{ ec2_prod.instances }}"
 
 # build server setup
