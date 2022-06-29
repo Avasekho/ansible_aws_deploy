@@ -50,12 +50,12 @@
       wait: true
       region: "{{ region }}"
       assign_public_ip: yes
-    register: ec2
-
+    register: ec2_build
   - name: Add new instance to host group
     add_host:
       hostname: "{{ item.public_ip }}"
       groupname: build
+    loop: "{{ ec2_build.instances }}"
 
 - name: Create a prod instance
   hosts: localhost
@@ -75,12 +75,12 @@
       wait: true
       region: "{{ region }}"
       assign_public_ip: yes
-    register: ec2
-
+    register: ec2_prod
   - name: Add new instance to host group
     add_host:
       hostname: "{{ item.public_ip }}"
       groupname: prod
+    loop: "{{ ec2_prod.instances }}"
 
 # build server setup
 - name: install maven
