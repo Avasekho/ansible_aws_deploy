@@ -32,7 +32,7 @@
             cidr_ip: 0.0.0.0/0
 
 # Building instances
-- name: create new build instance
+#- name: create new build instance
   hosts: localhost
   vars:
     keypair: ansible_aws_key
@@ -41,7 +41,7 @@
     instance_type: t2.micro
     region: us-east-1
   tasks:
-  - name: launch instance
+#  - name: launch instance
     amazon.aws.ec2:
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
@@ -58,13 +58,13 @@
           delete_on_termination: true
     register: ec2_build
 
-  - name: add instance to host group
+#  - name: add instance to host group
     add_host:
       hostname: "{{ item.public_ip }}"
       groupname: build
     loop: "{{ ec2_build.instances }}"
 
-- name: Create a prod instance
+#- name: Create a prod instance
   hosts: localhost
   vars:
     keypair: ansible_aws_key
@@ -74,7 +74,7 @@
     region: us-east-1
 
   tasks:
-    - name: Launch instance
+#    - name: Launch instance
       amazon.aws.ec2:
         key_name: "{{ keypair }}"
         group: "{{ security_group }}"
@@ -91,19 +91,19 @@
             delete_on_termination: true
       register: ec2_prod
 
-    - name: Add new instance to host group
+#    - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: prod
       loop: "{{ ec2_prod.instances }}"
 
 # build server setup
-- name: install maven
+#- name: install maven
   hosts: build
   become: yes
 
   tasks:
-  - name: Ensure default-jdk package is installed
+#  - name: Ensure default-jdk package is installed
     apt:
       pkg:
       - default-jdk
@@ -112,44 +112,44 @@
       state: present
 
 # building war
-- name: build war
+#- name: build war
   hosts: build
   become: yes
 
   tasks:
-  - name: clone files from Git repository
+#  - name: clone files from Git repository
     git:
       repo: 'https://github.com/boxfuse/boxfuse-sample-java-war-hello.git'
       dest: /tmp/boxfuse
 
-  - name: package war
+#  - name: package war
     shell:
       chdir: /tmp/boxfuse
       cmd: mvn package
 
 # prod server setup
-- name: install tomcat
+#- name: install tomcat
   hosts: prod
   become: yes
 
   tasks:
-  - name: Ensure tomcat9 package is installed
+#  - name: Ensure tomcat9 package is installed
     apt:
       name: tomcat9
       state: present
 
-  - name: Ensure tomcat9 service is started
+#  - name: Ensure tomcat9 service is started
     service:
       name: tomcat9
       state: started
 
 # push artifact
-- name: install tomcat
+#- name: install tomcat
   hosts: prod
   become: yes
 
   tasks:
-  - name: sync war
+#  - name: sync war
     synchronize:
       mode: push
       src: /tmp/boxfuse/target/hello-1.0.war
