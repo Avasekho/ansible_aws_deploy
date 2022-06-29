@@ -103,7 +103,7 @@
   become: yes
 
   tasks:
-  - name: Ensure default-jdk package is installed
+  - name: Ensure default-jdk/maven/git packages are installed
     apt:
       update_cache: yes
       pkg:
@@ -144,16 +144,24 @@
       name: tomcat9
       state: started
 
-# push artifact
-- name: install tomcat
-  hosts: prod
+# launching war
+- name: pull war from build server
+  hosts: build
   become: yes
 
   tasks:
-  - name: sync war
-    synchronize:
-      mode: push
-      src: /tmp/boxfuse/target/hello-1.0.war
-      dest: /var/lib/tomcat9/webapps/
-    delegate_to: "{{ groups['build'][0] }}"
-    delegate_facts: True
+  - name: pull artifact from build server
+    fetch:
+      src: "/tmp/boxfuse/target/hello-1.0.war"
+      dest: "/tmp/shared_folder/hello-1.0.war"
+      flat: yes
+
+- name: push war to app server
+  hosts: app
+  become: yes
+
+  tasks:
+  - name: push artifact to app server
+    copy:
+      src: "/tmp/shared_folder/hello-1.0.war"
+      dest: "/var/lib/tomcat9/webapps/hello-1.0.war"
