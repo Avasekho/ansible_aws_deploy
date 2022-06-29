@@ -100,7 +100,9 @@
 # build server setup
 - name: install maven
   hosts: build
+  become: yes
 
+  tasks:
   - name: Ensure default-jdk package is installed
     apt:
       update_cache: yes
@@ -128,6 +130,7 @@
 # prod server setup
 - name: install tomcat
   hosts: prod
+  become: yes
 
   tasks:
   - name: Ensure tomcat9 package is installed
@@ -144,6 +147,7 @@
 # push artifact
 - name: install tomcat
   hosts: prod
+  become: yes
 
   tasks:
   - name: sync war
