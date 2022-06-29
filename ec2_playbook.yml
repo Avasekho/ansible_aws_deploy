@@ -1,9 +1,6 @@
 ---
 # Security group
 - name: Create default security group
-  hosts: localhost
-  connection: local
-  gather_facts: False
   vars:
     region: us-east-1
   ec2_group:
