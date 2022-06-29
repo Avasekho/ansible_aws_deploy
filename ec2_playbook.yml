@@ -40,8 +40,8 @@
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
     region: us-east-1
+
   tasks:
-  - name: Launch instance
     amazon.aws.ec2_instance:
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
@@ -71,8 +71,8 @@
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
     region: us-east-1
+
   tasks:
-  - name: Launch instance
     amazon.aws.ec2_instance:
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
