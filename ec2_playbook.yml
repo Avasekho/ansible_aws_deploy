@@ -49,7 +49,8 @@
       image: "{{ image }}"
       wait: true
       region: "{{ region }}"
-      assign_public_ip: yes
+      network:
+        assign_public_ip: true
     register: ec2_build
   - name: Add new instance to host group
     add_host:
@@ -74,7 +75,8 @@
       image: "{{ image }}"
       wait: true
       region: "{{ region }}"
-      assign_public_ip: yes
+      network:
+        assign_public_ip: true
     register: ec2_prod
   - name: Add new instance to host group
     add_host:
