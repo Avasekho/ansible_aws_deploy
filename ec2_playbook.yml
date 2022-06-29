@@ -53,13 +53,6 @@
       image: "{{ image }}"
       wait: true
       region: "{{ region }}"
-      network:
-        assign_public_ip: true
-      volumes:
-      - device_name: /dev/sda1
-        ebs:
-          volume_size: 8
-          delete_on_termination: true
     register: ec2_build
 
   - name: add instance to host group
