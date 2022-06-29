@@ -32,7 +32,7 @@
             cidr_ip: 0.0.0.0/0
 
 # Building instances
-- name: Create a build instance
+- name: create new build instance
   hosts: localhost
   vars:
     keypair: ansible_aws_key
@@ -40,28 +40,29 @@
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
     region: us-east-1
-    
   tasks:
-      amazon.aws.ec2_instance:
-        key_name: "{{ keypair }}"
-        group: "{{ security_group }}"
-        instance_type: "{{ instance_type }}"
-        image: "{{ image }}"
-        wait: true
-        region: "{{ region }}"
-        network:
-          assign_public_ip: true
-        volumes:
-        - device_name: /dev/sda1
-          ebs:
-            volume_size: 8
-            delete_on_termination: true
-      register: ec2_build
-
-      add_host:
-        hostname: "{{ item.public_ip }}"
-        groupname: build
-      loop: "{{ ec2_build.instances }}"
+  - name: launch instance
+    amazon.aws.ec2:
+      key_name: "{{ keypair }}"
+      group: "{{ security_group }}"
+      instance_type: "{{ instance_type }}"
+      image: "{{ image }}"
+      wait: true
+      region: "{{ region }}"
+      network:
+        assign_public_ip: true
+      volumes:
+      - device_name: /dev/sda1
+        ebs:
+          volume_size: 8
+          delete_on_termination: true
+    register: ec2_build
+    
+  - name: add instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: build
+    loop: "{{ ec2_build.instances }}"
 
 - name: Create a prod instance
   hosts: localhost
@@ -73,7 +74,8 @@
     region: us-east-1
 
   tasks:
-      amazon.aws.ec2_instance:
+    - name: Launch instance
+      amazon.aws.ec2:
         key_name: "{{ keypair }}"
         group: "{{ security_group }}"
         instance_type: "{{ instance_type }}"
@@ -89,6 +91,7 @@
             delete_on_termination: true
       register: ec2_prod
 
+    - name: Add new instance to host group
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: prod
