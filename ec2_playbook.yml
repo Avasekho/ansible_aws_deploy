@@ -57,7 +57,7 @@
           volume_size: 8
           delete_on_termination: true
     register: ec2_build
-    
+
   - name: add instance to host group
     add_host:
       hostname: "{{ item.public_ip }}"
@@ -156,4 +156,4 @@
       dest: /var/lib/tomcat9/webapps/
     delegate_to: "{{ item.public_ip }}"
     delegate_facts: True
-    with_items: "{{groups['build']}}"
+    loop: "{{groups['build']}}"
