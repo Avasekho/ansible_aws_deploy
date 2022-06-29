@@ -6,7 +6,7 @@
     region: us-east-1
   tasks:
     ec2_group:
-      name: default ansible group 
+      name: default-ansible-group 
       description: Security Group for EC2 Server
       region: "{{ region }}"
       rules:
