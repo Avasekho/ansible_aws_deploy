@@ -1,6 +1,7 @@
 ---
 # Security group
 - name: Create default security group
+  hosts: localhost
   vars:
     region: us-east-1
   module: ec2_group
