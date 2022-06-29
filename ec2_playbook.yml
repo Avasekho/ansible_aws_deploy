@@ -41,21 +41,21 @@
     instance_type: t2.micro
     region: us-east-1
   tasks:
-    - name: Launch instance
-      amazon.aws.ec2_instance:
-        key_name: "{{ keypair }}"
-        group: "{{ security_group }}"
-        instance_type: "{{ instance_type }}"
-        image: "{{ image }}"
-        wait: true
-        region: "{{ region }}"
-        assign_public_ip: yes
-      register: ec2
+  - name: Launch instance
+    amazon.aws.ec2_instance:
+      key_name: "{{ keypair }}"
+      group: "{{ security_group }}"
+      instance_type: "{{ instance_type }}"
+      image: "{{ image }}"
+      wait: true
+      region: "{{ region }}"
+      assign_public_ip: yes
+    register: ec2
 
-    - name: Add new instance to host group
-      add_host:
-        hostname: "{{ item.public_ip }}"
-        groupname: build
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: build
 
 - name: Create a prod instance
   hosts: localhost
@@ -66,21 +66,21 @@
     instance_type: t2.micro
     region: us-east-1
   tasks:
-    - name: Launch instance
-      amazon.aws.ec2_instance:
-        key_name: "{{ keypair }}"
-        group: "{{ security_group }}"
-        instance_type: "{{ instance_type }}"
-        image: "{{ image }}"
-        wait: true
-        region: "{{ region }}"
-        assign_public_ip: yes
-      register: ec2
+  - name: Launch instance
+    amazon.aws.ec2_instance:
+      key_name: "{{ keypair }}"
+      group: "{{ security_group }}"
+      instance_type: "{{ instance_type }}"
+      image: "{{ image }}"
+      wait: true
+      region: "{{ region }}"
+      assign_public_ip: yes
+    register: ec2
 
-    - name: Add new instance to host group
-      add_host:
-        hostname: "{{ item.public_ip }}"
-        groupname: prod
+  - name: Add new instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: prod
 
 # build server setup
 - name: install maven
