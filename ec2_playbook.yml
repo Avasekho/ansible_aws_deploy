@@ -49,7 +49,6 @@
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: build
-      loop: "{{ ec2.instances }}"
 
 - name: Create a prod instance
   hosts: localhost
@@ -80,7 +79,6 @@
       add_host:
         hostname: "{{ item.public_ip }}"
         groupname: prod
-      loop: "{{ ec2.instances }}"
 
 # build server setup
 - name: install maven
@@ -139,6 +137,6 @@
       mode: push
       src: /tmp/boxfuse/target/hello-1.0.war
       dest: /var/lib/tomcat9/webapps/
-    delegate_to: "{{item}}"
+    delegate_to: "{{ item.public_ip }}"
     delegate_facts: True
-    loop: "{{groups['build']}}"
+    with_items: "{{groups['build']}}"
