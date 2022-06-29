@@ -38,7 +38,7 @@
   hosts: localhost
 
   vars:
-    keypair: ansible_aws_key
+    keypair: aws-ansible-pair-pem
     security_group: default-ansible-group
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
@@ -75,7 +75,7 @@
   hosts: localhost
 
   vars:
-    keypair: ansible_aws_key
+    keypair: aws-ansible-pair-pem
     security_group: default-ansible-group
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
