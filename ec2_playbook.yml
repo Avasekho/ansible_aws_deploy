@@ -155,6 +155,5 @@
       mode: push
       src: /tmp/boxfuse/target/hello-1.0.war
       dest: /var/lib/tomcat9/webapps/
-    delegate_to: "{{ item.public_ip }}"
+    delegate_to: "{{ groups['build'][0] }}"
     delegate_facts: True
-    loop: "{{groups['build']}}"
