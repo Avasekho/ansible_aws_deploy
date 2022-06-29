@@ -46,7 +46,6 @@
   tasks:
   - name: launch instance
     ec2:
-      profile: avasekho
       key_name: "{{ keypair }}"
       group: "{{ security_group }}"
       instance_type: "{{ instance_type }}"
