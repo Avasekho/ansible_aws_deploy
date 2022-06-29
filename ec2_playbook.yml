@@ -8,7 +8,7 @@
   tasks:
   - name: create group
     ec2_group:
-      name: default-ansible-group 
+      name: default-ansible-group
       description: Security Group for EC2 Server
       region: "{{ region }}"
       rules:
@@ -31,14 +31,13 @@
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
-    register: basic_firewall
 
 - name: create new build instance
   hosts: localhost
 
   vars:
     keypair: ansible_aws_key
-    security_group: default ansible group
+    security_group: default-ansible-group
     image: ami-08d4ac5b634553e16
     instance_type: t2.micro
     region: us-east-1
