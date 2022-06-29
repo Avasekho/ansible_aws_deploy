@@ -138,28 +138,28 @@
       cmd: mvn package
 
 # prod server setup
-#- name: install tomcat
+- name: install tomcat
   hosts: prod
   become: yes
 
   tasks:
-#  - name: Ensure tomcat9 package is installed
+  - name: Ensure tomcat9 package is installed
     apt:
       name: tomcat9
       state: present
 
-#  - name: Ensure tomcat9 service is started
+  - name: Ensure tomcat9 service is started
     service:
       name: tomcat9
       state: started
 
 # push artifact
-#- name: install tomcat
+- name: install tomcat
   hosts: prod
   become: yes
 
   tasks:
-#  - name: sync war
+  - name: sync war
     synchronize:
       mode: push
       src: /tmp/boxfuse/target/hello-1.0.war
