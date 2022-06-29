@@ -32,6 +32,7 @@
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0
+    register: basic_firewall
 
 - name: create new build instance
   hosts: localhost
