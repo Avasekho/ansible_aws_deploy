@@ -104,12 +104,12 @@
 
   - name: Ensure default-jdk package is installed
     apt:
+      update_cache: yes
       pkg:
       - default-jdk
       - maven
       - git
       state: present
-      update_cache: yes
 
 # building war
 - name: build war
@@ -135,9 +135,9 @@
   tasks:
   - name: Ensure tomcat9 package is installed
     apt:
+      update_cache: yes
       name: tomcat9
       state: present
-      update_cache: yes
 
   - name: Ensure tomcat9 service is started
     service:
