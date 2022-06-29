@@ -59,7 +59,7 @@
 
   - name: add instance to host group
     add_host:
-      hostname: "{{ item.public_ip }}"
+      hostname: "{{ item.private_ip }}"
       groupname: build
     loop: "{{ ec2_build.instances }}"
 
@@ -96,7 +96,7 @@
 
   - name: add instance to host group
     add_host:
-      hostname: "{{ item.public_ip }}"
+      hostname: "{{ item.private_ip }}"
       groupname: prod
     loop: "{{ ec2_prod.instances }}"
 
