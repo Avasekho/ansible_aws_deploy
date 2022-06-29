@@ -100,12 +100,7 @@
 # build server setup
 - name: install maven
   hosts: build
-
-  tasks:
-  - name: Wait for SSH to come up
-    wait_for_connection:
-      delay: 60
-      timeout: 120
+  become: yes
 
   - name: Ensure default-jdk package is installed
     apt:
@@ -114,10 +109,12 @@
       - maven
       - git
       state: present
+      update_cache: yes
 
 # building war
 - name: build war
   hosts: build
+  become: yes
 
   tasks:
   - name: clone files from Git repository
@@ -133,12 +130,14 @@
 # prod server setup
 - name: install tomcat
   hosts: prod
+  become: yes
 
   tasks:
   - name: Ensure tomcat9 package is installed
     apt:
       name: tomcat9
       state: present
+      update_cache: yes
 
   - name: Ensure tomcat9 service is started
     service:
@@ -148,6 +147,7 @@
 # push artifact
 - name: install tomcat
   hosts: prod
+  become: yes
 
   tasks:
   - name: sync war
