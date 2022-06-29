@@ -1,4 +1,5 @@
 ---
+# Adding group
 - name: Create default security group
   hosts: localhost
   
@@ -32,6 +33,7 @@
         - proto: all
           cidr_ip: 0.0.0.0/0
 
+# Building instances
 - name: create new build instance
   hosts: localhost
 
@@ -60,6 +62,50 @@
       hostname: "{{ item.public_ip }}"
       groupname: build
     loop: "{{ ec2_build.instances }}"
+
+  - name: Wait for SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ ec2_build.instances }}"
+
+# ------
+- name: create new prod instance
+  hosts: localhost
+
+  vars:
+    keypair: ansible_aws_key
+    security_group: default-ansible-group
+    image: ami-08d4ac5b634553e16
+    instance_type: t2.micro
+    region: us-east-1
+
+  tasks:
+  - name: launch instance
+    ec2:
+      key_name: "{{ keypair }}"
+      group: "{{ security_group }}"
+      instance_type: "{{ instance_type }}"
+      image: "{{ image }}"
+      wait: true
+      region: "{{ region }}"
+      instance_tags:
+        name: "prod_server"
+    register: ec2_prod
+
+  - name: add instance to host group
+    add_host:
+      hostname: "{{ item.public_ip }}"
+      groupname: prod
+    loop: "{{ ec2_prod.instances }}"
+
+  - name: Wait for SSH to come up
+    delegate_to: "{{ item.public_dns_name }}"
+    wait_for_connection:
+      delay: 60
+      timeout: 320
+    loop: "{{ ec2_prod.instances }}"
 
 # build server setup
 - name: install maven
@@ -90,3 +136,34 @@
     shell:
       chdir: /tmp/boxfuse
       cmd: mvn package
+
+# prod server setup
+#- name: install tomcat
+  hosts: prod
+  become: yes
+
+  tasks:
+#  - name: Ensure tomcat9 package is installed
+    apt:
+      name: tomcat9
+      state: present
+
+#  - name: Ensure tomcat9 service is started
+    service:
+      name: tomcat9
+      state: started
+
+# push artifact
+#- name: install tomcat
+  hosts: prod
+  become: yes
+
+  tasks:
+#  - name: sync war
+    synchronize:
+      mode: push
+      src: /tmp/boxfuse/target/hello-1.0.war
+      dest: /var/lib/tomcat9/webapps/
+    delegate_to: "{{ item.public_ip }}"
+    delegate_facts: True
+    loop: "{{groups['build']}}"
