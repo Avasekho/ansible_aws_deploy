@@ -53,6 +53,8 @@
       image: "{{ image }}"
       wait: true
       region: "{{ region }}"
+      vpc_subnet_id: subnet-032c20461e8d7a77b
+      assign_public_ip: yes
       instance_tags:
         name: "build_server"
     register: ec2_build
@@ -90,6 +92,8 @@
       image: "{{ image }}"
       wait: true
       region: "{{ region }}"
+      vpc_subnet_id: subnet-032c20461e8d7a77b
+      assign_public_ip: yes
       instance_tags:
         name: "prod_server"
     register: ec2_prod
